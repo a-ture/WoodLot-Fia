@@ -1,0 +1,68 @@
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Python,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+\begin{lstlisting}
+
+import unittest
+
+
+class TestSum(unittest.TestCase):
+
+    def test_sum(self):
+        self.assertEqual(sum([1, 2, 3]), 6, "Should be 6")
+
+    def test_sum_tuple(self):
+        self.assertEqual(sum((1, 2, 2)), 6, "Should be 6")
+
+if __name__ == '__main__':
+    unittest.main()
+
+$ python test_sum_unittest.py
+.F
+======================================================================
+FAIL: test_sum_tuple (__main__.TestSum)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "test_sum_unittest.py", line 9, in test_sum_tuple
+    self.assertEqual(sum((1, 2, 2)), 6, "Should be 6")
+AssertionError: Should be 6
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (failures=1)
+
+$ pip install nose2
+$ python -m nose2
+.F
+======================================================================
+FAIL: test_sum_tuple (__main__.TestSum)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "test_sum_unittest.py", line 9, in test_sum_tuple
+    self.assertEqual(sum((1, 2, 2)), 6, "Should be 6")
+AssertionError: Should be 6
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+FAILED (failures=1)
+
+\end{lstlisting}
