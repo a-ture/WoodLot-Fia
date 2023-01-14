@@ -1,30 +1,41 @@
-\section{Introduzione}
+\chapter{Introduzione}
 
-\subsection{Obiettivi}
+\section{Obiettivi} %spiegare le situazioni limite
 Lo scopo principale di questo progetto è stato quello di creare un' agente artificiale a supporto dell'applicativo WoodLot.
-WoodLot è un e-commerce che permette l'acquisto simbolico di un albero. Gli alberi acquistati dagli utenti saranno piantati da contadini. I contadini, che si possono registrare autonomamente alla piattaforma, possono provenire da tutti i paesi del mondo.
-Il compito dell'agente sarà quello di assegnare gli alberi acquistati dagli utenti ai contadini. 
-Un contadino dopo aver ricevuto un albero avrà a disposizione, un mese per piantare il seme e communicarlo in piattaforma, l'ordine non evaso sarà assegnato ad un nuovo contadino.
+
+WoodLot è un e-commerce che permette l'acquisto simbolico di un albero. Gli alberi acquistati dagli utenti saranno piantati da contadini. Un albero dopo essere stato comprato, entra nello stato \"non assegnato \" . I contadini, che si possono registrare autonomamente alla piattaforma, possono provenire da tutti i paesi del mondo.
+Il responsabile degli ordini sarà responsabile di assegnare gli alberi ai contadini. Lo scopo dell' agente artificiale sarà quello di semplificare  il lavoro del responsabile degli ordini, fornendo il miglior assegnamento di contadini agli alberi. Il responsabile degli ordini sarà di libero di seguire il consiglio dell'agente oppure no, soprattutto in situazioni limite 
+
 L'assegnazione degli alberi ai contadini deve rispettare alcuni vincoli: 
 \begin{itemize}
 \item contadino che si trova nel luogo adatto alla crescita dell'albero
 \item contadino che ha in cura meno alberi di tutti 
-\item contadino che non ricevuto ri-assegnamenti dei suoi ordini nell'ultimo mese
+\item tenere conto delle penalità dei contadini
 \end{itemize}
+Un contadino comunica di aver piantato un albero, caricando una foto. Il responsabile degli ordini si occupa di validare la foto. 
+Un contadino riceve una penalità quando, dopo aver ricevuto l'assegnazione di un albero non comunica la piantumazione o dopo aver caricato una foto non valida. 
 
+%specificare in cosa consiste la penalità -> numero di giorni in cui non può essere usato 
 
-
-\subsection{Specifica PEAS}
+\section{Specifica PEAS} %vedere la specifica peas
 \begin{itemize}
-\item \textbf{Performance:} sono le misure di prestazione adottate per valutare l’operato di un agente,
-in questo caso valutiamo se .
+\item \textbf{Performance:} la misura di performance dell'agente è la sua capacità di produrre un assegnamento di alberi ai contadini che rispetti i vincoli dell'assegnamento. 
 \item \textbf{Environment:} Descrizione degli elementi che formano l’ambiente (descritto sotto).
-\item \textbf{Actuators:} Gli attuatori disponibili dell’agente per intraprendere le azioni. In questo caso gli attuatori saranno 
-\item \textbf{Sensors:} 
+\item \textbf{Actuators:} Gli attuatori disponibili dell’agente per intraprendere le azioni. In questo caso gli attuatori saranno la lista degli alberi non ancora assegnati ad un contadino e la lista dei contadini. 
+\item \textbf{Sensors:} I sensori dell'agente consistono nel bottone dell'assegnamento presente nella pagina del responsabile ordini.
 \end{itemize}
 
-\subsection{Caratteristiche dell'ambiente}
-Tale problema si è affrontato partendo da un ambente realizzato con le seguenti caratteristiche: 
+\subsection{Caratteristiche dell'ambiente} 
+L'ambiente in cui opera l'agente è lo spazio degli utenti del sito (responsabile ordini e contadini) unito a quello degli alberi da piantare e le loro caratteristiche. 
+L'ambiente è: 
+\begin{itemize}
+\item \textbf{Sequenziale}, in quanto le azioni passate degli utenti influenzano le decisioni future dell'agente. 
+\item \textbf{Completamente osservabile}, in quanto si ha accesso a tutte le informazioni relative agli utenti ed ai prodotti in ogni momento
+\item \textbf {Stocastico}, in quanto lo stato dell'agente cambia indipendentemente dalle azioni dell'agente
+\item \textbf {Dinamico} in quanto nel corso dell'elaborazione un altro responsabile degli ordini potrebbe effettuare un assegnazione cambiando l'insieme degli alberi da piantare
+\item \textbf{Discreto o continuo}
+\item \textbf {A singolo agente}, in quanto l'unico agente che opera in questo campo è quello in oggetto.
+\end{itemize}
 
 \subsection{Analisi del problema}
 Il problema può essere formalizzato descrivendolo: 
@@ -36,24 +47,4 @@ Il problema può essere formalizzato descrivendolo:
 \item \textbf{Costo del cammino:} 
 \end{itemize}
 
-Per la realizzazione del programma agente è stato deciso di affrontare questo problema implementando non un'unica soluzione, ma diverse soluzioni utilizzando gli algoritmi di ricerca studiati durante il corso di "Fondamenti di Intelligenza Artificiale A.A 2021/22", in modo da valutarne i diversi punti di forza e debolezza. 
-
-
-\begin{equation} \label{eqRelativity} E=m*c^2 \end{equation}
-
-
-
-
-\begin{table}[h!]
-\begin{center}
-\caption{Binary Table}
-\begin{tabular}{|l|l|l|l|l|}
-\hline
-0 & 1 & 0 & 1 & 0 \\ 
-1 & 0 & 1 & 0 & 1 \\
-0 & 1 & 0 & 1 & 0 \\
-1 & 0 & 1 & 0 & 1 \\
-\hline
-\end{tabular}
-\end{center}
-\end{table}
+Per la realizzazione del programma agente è stato deciso di affrontare questo problema implementando non un'unica soluzione, ma diverse soluzioni utilizzando gli algoritmi di ricerca studiati durante il corso di "Fondamenti di Intelligenza Artificiale A.A 2022/23", in modo da valutarne i diversi punti di forza e debolezza. 
