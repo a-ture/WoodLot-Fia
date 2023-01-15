@@ -5,7 +5,7 @@ import comune.Worker;
 
 import java.util.*;
 
-import static algoritmoGreedy.BestFitGreedy.assignJobs;
+
 
 public class BFS {
 
