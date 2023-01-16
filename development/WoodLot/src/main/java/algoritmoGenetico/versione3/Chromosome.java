@@ -16,16 +16,25 @@ import java.util.Map;
  * meno. Ho creato una mappa per tracciare quali contadini sono stati assegnati e ho calcolato il numero minimo di
  * alberi piantati tra tutti i contadini. Poi ho premiato ogni contadino che ha piantato alberi pari al numero minimo.
  */
+
+
 public class Chromosome {
     private int[] gene;
     private double fitness;
     private List<Tree> trees;
     private List<Farmer> farmers;
+    private Map<Integer, Boolean> farmersAssignedMap;
+
 
     public Chromosome(int size, List<Tree> trees, List<Farmer> farmers) {
         this.gene = new int[size];
         this.trees = trees;
         this.farmers = farmers;
+        this.farmersAssignedMap = new HashMap<>();
+        for (Farmer farmer : farmers) {
+            farmersAssignedMap.put(farmer.getId(), false);
+        }
+
     }
 
     public int[] getGene() {
@@ -44,12 +53,12 @@ public class Chromosome {
         this.fitness = fitness;
     }
 
-    //metodo per valutare la funzione di fitness del cromosoma
     public void evaluateFitness(List<Tree> trees, List<Farmer> farmers) {
         int treesAssigned = 0;
         int farmersAssigned = 0;
         double fitnessScore = 0;
-        Map<Integer, Boolean> farmersAssignedMap = new HashMap<>();
+
+        farmersAssignedMap = new HashMap<>();
         for (Farmer farmer : farmers) {
             farmersAssignedMap.put(farmer.getId(), false);
         }
@@ -64,7 +73,8 @@ public class Chromosome {
                 fitnessScore++;
                 farmer.plantTree();
                 treesAssigned++;
-                if (!farmersAssignedMap.get(farmerId)) {
+
+                if (!farmersAssignedMap.containsKey(farmerId) || !farmersAssignedMap.get(farmerId)) {
                     farmersAssigned++;
                     farmersAssignedMap.put(farmerId, true);
                 }
@@ -93,6 +103,7 @@ public class Chromosome {
         }
         this.fitness = fitnessScore;
     }
+
     public Chromosome permute(List<Tree> trees, List<Farmer> farmers) {
         int[] gene = this.getGene();
         int randomIndex1 = (int) (Math.random() * gene.length);
@@ -106,6 +117,40 @@ public class Chromosome {
         return newChromosome;
     }
 
+    public Chromosome tournamentSelection(List<Chromosome> chromosomes) {
+        Chromosome best = chromosomes.get(0);
+        for (int i = 1; i < chromosomes.size(); i++) {
+            Chromosome current = chromosomes.get(i);
+            if (current.getFitness() > best.getFitness()) {
+                best = current;
+            }
+        }
+        return best;
+    }
+
+    public Chromosome crossover(Chromosome partner) {
+        int[] newGene = new int[gene.length];
+        int crossoverPoint = (int) (Math.random() * gene.length);
+        for (int i = 0; i < gene.length; i++) {
+            if (i < crossoverPoint) {
+                newGene[i] = gene[i];
+            } else {
+                newGene[i] = partner.gene[i];
+            }
+        }
+        Chromosome offspring = new Chromosome(newGene.length, trees, farmers);
+        offspring.setGene(newGene);
+        offspring.evaluateFitness(trees, farmers);
+        return offspring;
+    }
+
+    public void mutate(List<Tree> trees, List<Farmer> farmers) {
+        int randomIndex1 = (int) (Math.random() * gene.length);
+        int randomIndex2 = (int) (Math.random() * gene.length);
+        int temp = gene[randomIndex1];
+        gene[randomIndex1] = gene[randomIndex2];
+        gene[randomIndex2] = temp;
+        evaluateFitness(trees, farmers);
+    }
+
 }
-
-
