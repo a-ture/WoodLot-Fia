@@ -9,3 +9,5 @@
 *.gz
 *.toc
 *.class
+*.jar
+*.lst
