@@ -7,53 +7,56 @@ import comune.Tree;
 import java.util.*;
 
 public class GeneticAlgorithm {
-
     private List<Tree> trees;
     private List<Farmer> farmers;
-
     private List<Chromosome> population;
+    private final int POPULATION_SIZE;
+    private final int TOURNAMENT_SIZE;
+    private final int NUMBER_OF_SELECTED;
+    private final double MUTATION_RATE;
+    private final int NUMBER_OF_ITERATIONS;
+    private Chromosome bestSolution;
 
-    public List<Tree> getTrees() {
-        return trees;
-    }
+    private double bestFitness;
 
-    public void setTrees(List<Tree> trees) {
-        this.trees = trees;
-    }
 
-    public List<Farmer> getFarmers() {
-        return farmers;
-    }
-
-    public void setFarmers(List<Farmer> farmers) {
-        this.farmers = farmers;
-    }
-
-    public List<Chromosome> getPopulation() {
-        return population;
-    }
-
-    public void setPopulation(List<Chromosome> population) {
-        this.population = population;
-    }
-
-    public GeneticAlgorithm(List<Tree> trees, List<Farmer> farmers) {
+    public GeneticAlgorithm(List<Tree> trees, List<Farmer> farmers, int populationSize, int tournamentSize, int numberOfSelected, double mutationRate, int numberOfIterations) {
         this.trees = trees;
         this.farmers = farmers;
+        this.POPULATION_SIZE = populationSize;
+        this.TOURNAMENT_SIZE = tournamentSize;
+        this.NUMBER_OF_SELECTED = numberOfSelected;
+        this.MUTATION_RATE = mutationRate;
+        this.NUMBER_OF_ITERATIONS = numberOfIterations;
     }
 
-    public void initializePopulation(int populationSize) {
+    public Chromosome start() {
+        initializePopulation();
+        for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
+            List<Chromosome> newPopulation = new ArrayList<>();
+            for (int j = 0; j < POPULATION_SIZE; j++) {
+                Chromosome offspring = evolve();
+                newPopulation.add(offspring);
+            }
+            population = newPopulation;
+            mutate();
+            updateBestSolution();
+        }
+        return bestSolution;
+    }
+
+    private void initializePopulation() {
         population = new ArrayList<>();
         Chromosome validIndividual = generateValidIndividual();
+        bestSolution = generateValidIndividual();
         population.add(validIndividual);
-        for (int i = 1; i < populationSize; i++) {
+        for (int i = 1; i < POPULATION_SIZE; i++) {
             Chromosome newIndividual = population.get((int) (Math.random() * population.size())).permute(trees, farmers);
             population.add(newIndividual);
         }
-
     }
 
-    public Chromosome generateValidIndividual() {
+    private Chromosome generateValidIndividual() {
         Chromosome chromosome = new Chromosome(trees.size(), trees, farmers);
         int[] gene = new int[trees.size()];
         Map<Integer, Integer> farmerTreeCount = new HashMap<>();
@@ -81,34 +84,37 @@ public class GeneticAlgorithm {
         return chromosome;
     }
 
-
-    public List<Chromosome> tournamentSelection(int tournamentSize, int numberOfSelected) {
-        List<Chromosome> selected = new ArrayList<>();
-        for (int i = 0; i < numberOfSelected; i++) {
-            List<Chromosome> tournament = new ArrayList<>();
-            for (int j = 0; j < tournamentSize; j++) {
-                int randomIndex = (int) (Math.random() * population.size());
-                tournament.add(population.get(randomIndex));
-            }
-            Chromosome winner = tournament.stream().max(Comparator.comparingDouble(Chromosome::getFitness)).get();
-            selected.add(winner);
-        }
-        return selected;
-    }
-
-    public Chromosome evolve(Chromosome chromosome) {
-        Chromosome parent1 = chromosome.tournamentSelection(population);
-        Chromosome parent2 = chromosome.tournamentSelection(population);
+    private Chromosome evolve() {
+        Chromosome parent1 = tournamentSelection();
+        Chromosome parent2 = tournamentSelection();
         Chromosome offspring = parent1.crossover(parent2);
         return offspring;
     }
 
-    public void mutate(double mutationRate) {
+    private Chromosome tournamentSelection() {
+        List<Chromosome> tournament = new ArrayList<>();
+        for (int j = 0; j < TOURNAMENT_SIZE; j++) {
+            int randomIndex = (int) (Math.random() * population.size());
+            tournament.add(population.get(randomIndex));
+        }
+        Chromosome winner = tournament.stream().max(Comparator.comparingDouble(Chromosome::getFitness)).get();
+        return winner;
+    }
+
+    private void mutate() {
         for (Chromosome chromosome : population) {
             double randomNum = Math.random();
-            if (randomNum < mutationRate) {
+            if (randomNum < MUTATION_RATE) {
                 chromosome.mutate(trees, farmers);
+                chromosome.evaluateFitness(trees, farmers);
             }
+        }
+    }
+
+    private void updateBestSolution() {
+        Chromosome currentBest = population.stream().max(Comparator.comparingDouble(Chromosome::getFitness)).get();
+        if (currentBest.getFitness() > bestSolution.getFitness()) {
+            bestSolution = currentBest;
         }
     }
 

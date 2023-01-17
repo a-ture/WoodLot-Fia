@@ -54,4 +54,13 @@ public class Farmer {
     public int hashCode() {
         return Objects.hash(id, country, treesPlanted);
     }
+
+    @Override
+    public String toString() {
+        return "Farmer{" +
+                "id=" + id +
+                ", country='" + country + '\'' +
+                ", treesPlanted=" + treesPlanted +
+                '}';
+    }
 }

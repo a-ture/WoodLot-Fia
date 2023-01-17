@@ -57,30 +57,32 @@ public class Chromosome {
         int treesAssigned = 0;
         int farmersAssigned = 0;
         double fitnessScore = 0;
-
-        farmersAssignedMap = new HashMap<>();
-        for (Farmer farmer : farmers) {
-            farmersAssignedMap.put(farmer.getId(), false);
+        Map<Integer, Integer> farmerTreeCount = new HashMap<>();
+        for (int i = 0; i < farmers.size(); i++) {
+            farmerTreeCount.put(farmers.get(i).getId(), farmers.get(i).getTreesPlanted());
         }
 
         for (int i = 0; i < this.gene.length; i++) {
             int farmerId = this.gene[i];
+
             Farmer farmer = farmers.get(farmerId);
-            int treeId = i;
+
+            int treeId = trees.get(i).getId();
             Tree tree = trees.get(treeId);
-
-            if (farmer.getCountry().equals(tree.getCountry())) {
+            if (farmer.getCountry().equals(tree.getCountry()) && !tree.getCountry().equals("Guatemala")
+                    && farmerTreeCount.containsKey(farmerId) &&
+                    farmerTreeCount.get(farmerId) < (trees.size() / farmers.size())) {
                 fitnessScore++;
-                farmer.plantTree();
+                farmerTreeCount.put(farmerId, farmerTreeCount.get(farmerId) + 1);
                 treesAssigned++;
-
                 if (!farmersAssignedMap.containsKey(farmerId) || !farmersAssignedMap.get(farmerId)) {
                     farmersAssigned++;
                     farmersAssignedMap.put(farmerId, true);
                 }
+                } else {
+                    fitnessScore--;
+                }
             }
-        }
-
         if (treesAssigned < trees.size()) {
             fitnessScore -= (trees.size() - treesAssigned);
         }
@@ -90,14 +92,14 @@ public class Chromosome {
 
         //premiare le soluzioni che assegnano più alberi ai contadini che ne hanno meno
         int minTreesPlanted = Integer.MAX_VALUE;
-        for (Farmer farmer : farmers) {
-            if (farmer.getTreesPlanted() < minTreesPlanted) {
-                minTreesPlanted = farmer.getTreesPlanted();
+        for (Integer count : farmerTreeCount.values()) {
+            if (count < minTreesPlanted) {
+                minTreesPlanted = count;
             }
         }
 
-        for (Farmer farmer : farmers) {
-            if (farmer.getTreesPlanted() == minTreesPlanted) {
+        for (Integer count : farmerTreeCount.values()) {
+            if (count == minTreesPlanted) {
                 fitnessScore += 1;
             }
         }
@@ -128,21 +130,21 @@ public class Chromosome {
         return best;
     }
 
-    public Chromosome crossover(Chromosome partner) {
-        int[] newGene = new int[gene.length];
+    public Chromosome crossover(Chromosome parent2) {
+        Chromosome offspring = new Chromosome(gene.length, trees, farmers);
+        int[] offspringGene = new int[gene.length];
         int crossoverPoint = (int) (Math.random() * gene.length);
-        for (int i = 0; i < gene.length; i++) {
-            if (i < crossoverPoint) {
-                newGene[i] = gene[i];
-            } else {
-                newGene[i] = partner.gene[i];
-            }
+        for (int i = 0; i < crossoverPoint; i++) {
+            offspringGene[i] = this.gene[i];
         }
-        Chromosome offspring = new Chromosome(newGene.length, trees, farmers);
-        offspring.setGene(newGene);
+        for (int i = crossoverPoint; i < gene.length; i++) {
+            offspringGene[i] = parent2.getGene()[i];
+        }
+        offspring.setGene(offspringGene);
         offspring.evaluateFitness(trees, farmers);
         return offspring;
     }
+
 
     public void mutate(List<Tree> trees, List<Farmer> farmers) {
         int randomIndex1 = (int) (Math.random() * gene.length);

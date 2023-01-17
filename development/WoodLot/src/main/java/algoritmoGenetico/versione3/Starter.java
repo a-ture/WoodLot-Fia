@@ -19,51 +19,46 @@ public class Starter {
         List<Tree> trees = new ArrayList<>();
 
         trees.add(new Tree(1, "Italia"));
-        trees.add(new Tree(3, "Argentina"));
-        trees.add(new Tree(2, "Perù"));
-        trees.add(new Tree(4, "Guatemala"));
+        trees.add(new Tree(2, "Argentina")); //1
+        trees.add(new Tree(3, "Perù"));   //1
+        trees.add(new Tree(4, "Guatemala")); //1
         trees.add(new Tree(5, "Italia"));
-        trees.add(new Tree(6, "Argentina"));
-        trees.add(new Tree(7, "Perù"));
-        trees.add(new Tree(8, "Guatemala")); trees.add(new Tree(1, "Italia"));
-        trees.add(new Tree(9, "Argentina"));
-        trees.add(new Tree(10, "Perù"));
-        trees.add(new Tree(11, "Guatemala")); trees.add(new Tree(1, "Italia"));
-        trees.add(new Tree(12, "Argentina"));
-        trees.add(new Tree(13, "Perù"));
-        trees.add(new Tree(14, "Guatemala"));
+        trees.add(new Tree(6, "Argentina")); //2
+        trees.add(new Tree(7, "Perù")); //2
+        trees.add(new Tree(8, "Guatemala")); //2
+        trees.add(new Tree(1, "Italia"));
+        trees.add(new Tree(9, "Argentina")); //3
+        trees.add(new Tree(10, "Perù")); //3
+        trees.add(new Tree(11, "Guatemala")); //3
+        trees.add(new Tree(1, "Italia"));
+        trees.add(new Tree(12, "Argentina")); //4
+        trees.add(new Tree(13, "Perù")); //4
+        trees.add(new Tree(14, "Guatemala")); //4
 
         List<Farmer> farmers = new ArrayList<>();
-        farmers.add(new Farmer(1,"Argentina", 4));
-        farmers.add(new Farmer(2,"Perù", 4));
-        farmers.add(new Farmer(3,"Italia", 4));
-        farmers.add(new Farmer(7,"Italia", 4));
+        farmers.add(new Farmer(1, "Argentina", 4));
+        farmers.add(new Farmer(2, "Perù", 4));
+        farmers.add(new Farmer(3, "Italia", 4));
+        farmers.add(new Farmer(4, "Guatemala", 4));
 
-        GeneticAlgorithm ga = new GeneticAlgorithm(trees, farmers);
-        ga.initializePopulation(100);
+        for (int i = 0; i < farmers.size(); i++)
+            System.out.println(farmers.get(i));
 
-        // loop per l'evoluzione della popolazione
-        for (int i = 0; i < 100; i++) {
-            List<Chromosome> newPopulation = new ArrayList<>();
-            for (int j = 0; j < ga.getPopulation().size(); j++) {
-                Chromosome evolved = ga.evolve(ga.getPopulation().get(j));
-                newPopulation.add(evolved);
-            }
-            ga.setPopulation(newPopulation);
-            ga.mutate(0.01);
-        }
+        GeneticAlgorithm ga = new GeneticAlgorithm(trees, farmers,100,60,6,0.6,100);
 
-        // trovare il cromosoma con la migliore fitness
-        Chromosome best = ga.getPopulation().stream().max(Comparator.comparingDouble(Chromosome::getFitness)).get();
+        System.out.println("\n ---------\n");
 
-        // utilizzare il gene di best per assegnare gli alberi ai contadini
-        int[] gene = best.getGene();
+        int[] gene =  ga.start().getGene() ;
         for (int i = 0; i < gene.length; i++) {
             int farmerId = gene[i];
             Farmer farmer = farmers.get(farmerId);
             farmer.plantTree();
         }
-        System.out.println("Best solution: " + Arrays.toString(best.getGene()));
+
+        for (int i = 0; i < farmers.size(); i++)
+            System.out.println(farmers.get(i));
+
+        System.out.println("Best solution: " + Arrays.toString(gene));
 
     }
 }
