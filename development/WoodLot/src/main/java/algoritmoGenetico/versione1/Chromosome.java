@@ -1,4 +1,4 @@
-package algoritmoGenetico.versione3;
+package algoritmoGenetico.versione1;
 
 import comune.Farmer;
 import comune.Tree;
@@ -24,7 +24,6 @@ public class Chromosome {
     private List<Tree> trees;
     private List<Farmer> farmers;
     private Map<Integer, Boolean> farmersAssignedMap;
-
 
     public Chromosome(int size, List<Tree> trees, List<Farmer> farmers) {
         this.gene = new int[size];
@@ -66,8 +65,8 @@ public class Chromosome {
             int farmerId = this.gene[i];
 
             Farmer farmer = farmers.get(farmerId);
-
-            int treeId = trees.get(i).getId();
+            //TODO implementare una funizone di ricerca perchè adesso va solo perchè sono in ordine
+            int treeId = trees.get(i).getId() - 1;
             Tree tree = trees.get(treeId);
             if (farmer.getCountry().equals(tree.getCountry()) && !tree.getCountry().equals("Guatemala")
                     && farmerTreeCount.containsKey(farmerId) &&
@@ -79,10 +78,23 @@ public class Chromosome {
                     farmersAssigned++;
                     farmersAssignedMap.put(farmerId, true);
                 }
-                } else {
+            } else {
+                // now we check if there is any farmer that can be assigned to this tree
+                boolean validAssignment = false;
+                for (Farmer f : farmers) {
+                    if (f.getCountry().equals(tree.getCountry())
+                            && farmerTreeCount.containsKey(f.getId()) &&
+                            farmerTreeCount.get(f.getId()) < (trees.size() / farmers.size())) {
+                        validAssignment = true;
+                        break;
+                    }
+                }
+                if (!validAssignment) {
+                    //there is not a valid assignment for this tree
                     fitnessScore--;
                 }
             }
+        }
         if (treesAssigned < trees.size()) {
             fitnessScore -= (trees.size() - treesAssigned);
         }
@@ -90,7 +102,7 @@ public class Chromosome {
             fitnessScore -= (farmers.size() - farmersAssigned);
         }
 
-        //premiare le soluzioni che assegnano più alberi ai contadini che ne hanno meno
+//premiare le soluzioni che assegnano più alberi ai contadini che ne hanno meno
         int minTreesPlanted = Integer.MAX_VALUE;
         for (Integer count : farmerTreeCount.values()) {
             if (count < minTreesPlanted) {
@@ -119,17 +131,6 @@ public class Chromosome {
         return newChromosome;
     }
 
-    public Chromosome tournamentSelection(List<Chromosome> chromosomes) {
-        Chromosome best = chromosomes.get(0);
-        for (int i = 1; i < chromosomes.size(); i++) {
-            Chromosome current = chromosomes.get(i);
-            if (current.getFitness() > best.getFitness()) {
-                best = current;
-            }
-        }
-        return best;
-    }
-
     public Chromosome crossover(Chromosome parent2) {
         Chromosome offspring = new Chromosome(gene.length, trees, farmers);
         int[] offspringGene = new int[gene.length];
@@ -146,7 +147,7 @@ public class Chromosome {
     }
 
 
-    public void mutate(List<Tree> trees, List<Farmer> farmers) {
+    public void mutate() {
         int randomIndex1 = (int) (Math.random() * gene.length);
         int randomIndex2 = (int) (Math.random() * gene.length);
         int temp = gene[randomIndex1];

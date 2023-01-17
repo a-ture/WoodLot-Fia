@@ -1,4 +1,4 @@
-package algoritmoGenetico.versione3;
+package algoritmoGenetico.versione1;
 
 
 import comune.Farmer;
@@ -84,7 +84,7 @@ public class GeneticAlgorithm {
         return chromosome;
     }
 
-    private Chromosome evolve() {
+        private Chromosome evolve() {
         Chromosome parent1 = tournamentSelection();
         Chromosome parent2 = tournamentSelection();
         Chromosome offspring = parent1.crossover(parent2);
@@ -101,19 +101,25 @@ public class GeneticAlgorithm {
         return winner;
     }
 
+
+    public double getBestFitness() {
+        return bestFitness;
+    }
+
+
     private void mutate() {
-        for (Chromosome chromosome : population) {
-            double randomNum = Math.random();
-            if (randomNum < MUTATION_RATE) {
-                chromosome.mutate(trees, farmers);
-                chromosome.evaluateFitness(trees, farmers);
+        for (int i = 0; i < POPULATION_SIZE; i++) {
+            if (Math.random() < MUTATION_RATE) {
+                population.set(i, population.get(i).permute(trees, farmers));
             }
         }
     }
 
     private void updateBestSolution() {
-        Chromosome currentBest = population.stream().max(Comparator.comparingDouble(Chromosome::getFitness)).get();
-        if (currentBest.getFitness() > bestSolution.getFitness()) {
+        population.sort(Comparator.comparingDouble(Chromosome::getFitness));
+        Chromosome currentBest = population.get(0);
+        if (bestFitness < currentBest.getFitness()) {
+            bestFitness = currentBest.getFitness();
             bestSolution = currentBest;
         }
     }
