@@ -54,9 +54,15 @@ public class Starter {
         List<Farmer> farmers = new ArrayList<>();
 
         farmers.add(new Farmer(0, "Perù", 0));
-
         farmers.add(new Farmer(1, "Guatemala", 0));
         farmers.add(new Farmer(2, "Argentina", 0));
+        farmers.add(new Farmer(3, "Italia", 0));
+        farmers.add(new Farmer(4, "Perù", 0));
+        farmers.add(new Farmer(5, "Guatemala", 0));
+        farmers.add(new Farmer(6, "Argentina", 0));
+        farmers.add(new Farmer(7, "Italia", 0));
+        farmers.add(new Farmer(8, "Italia", 0));
+        farmers.add(new Farmer(9, "Napoliii", 0));
 
         for (int i = 0; i < farmers.size(); i++)
             System.out.println(farmers.get(i));

@@ -31,7 +31,6 @@ public class GeneticAlgorithm {
     }
 
     public Chromosome start() {
-        System.out.println(trees.size());
         initializePopulation();
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
             List<Chromosome> newPopulation = new ArrayList<>();
@@ -49,10 +48,10 @@ public class GeneticAlgorithm {
     private void initializePopulation() {
         population = new ArrayList<>();
         Chromosome validIndividual = generateValidIndividual();
-        bestSolution = new Chromosome(trees.size(),trees,farmers);
+        bestSolution = new Chromosome(trees.size(), trees, farmers);
         population.add(validIndividual);
         for (int i = 1; i < POPULATION_SIZE; i++) {
-            Chromosome newIndividual = population.get((int) (Math.random() * population.size())).permute(trees, farmers);
+            Chromosome newIndividual = generateValidIndividual();
             population.add(newIndividual);
         }
     }
@@ -84,21 +83,15 @@ public class GeneticAlgorithm {
                 int farmerId = possibleFarmers.get(randomIndex);
                 gene[i] = farmerId;
                 countryTreeCount.put(trees.get(i).getCountry(), countryTreeCount.get(trees.get(i).getCountry()) + 1);
-                System.out.println("All'iterazione:" + i+ " , farmerID:"+farmerId);
             } else {
 // Handle the case where there are no possible farmers for the current tree
             }
         }
 
         chromosome.setGene(gene);
-
-        System.out.println(Arrays.toString(gene));
         chromosome.evaluateFitness(trees, farmers);
         return chromosome;
     }
-
-
-
 
 
     private Chromosome evolve() {
