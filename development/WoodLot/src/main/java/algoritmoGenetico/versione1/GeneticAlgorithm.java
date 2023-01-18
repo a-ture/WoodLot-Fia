@@ -31,6 +31,7 @@ public class GeneticAlgorithm {
     }
 
     public Chromosome start() {
+        System.out.println(trees.size());
         initializePopulation();
         for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
             List<Chromosome> newPopulation = new ArrayList<>();
@@ -48,7 +49,7 @@ public class GeneticAlgorithm {
     private void initializePopulation() {
         population = new ArrayList<>();
         Chromosome validIndividual = generateValidIndividual();
-        bestSolution = generateValidIndividual();
+        bestSolution = new Chromosome(trees.size(),trees,farmers);
         population.add(validIndividual);
         for (int i = 1; i < POPULATION_SIZE; i++) {
             Chromosome newIndividual = population.get((int) (Math.random() * population.size())).permute(trees, farmers);
@@ -59,32 +60,48 @@ public class GeneticAlgorithm {
     private Chromosome generateValidIndividual() {
         Chromosome chromosome = new Chromosome(trees.size(), trees, farmers);
         int[] gene = new int[trees.size()];
-        Map<Integer, Integer> farmerTreeCount = new HashMap<>();
-        for (int i = 0; i < farmers.size(); i++) {
-            farmerTreeCount.put(farmers.get(i).getId(), 0);
+
+        Map<String, Integer> countryTreeCount = new HashMap<>();
+
+        for (int i = 0; i < trees.size(); i++) {
+            gene[i] = -1;
         }
+        for (int i = 0; i < trees.size(); i++) {
+            if (!countryTreeCount.containsKey(trees.get(i).getCountry())) {
+                countryTreeCount.put(trees.get(i).getCountry(), 0);
+            }
+        }
+
         for (int i = 0; i < trees.size(); i++) {
             List<Integer> possibleFarmers = new ArrayList<>();
             for (int j = 0; j < farmers.size(); j++) {
-                if (farmers.get(j).getCountry().equals(trees.get(i).getCountry()) && farmerTreeCount.get(farmers.get(j).getId()) < trees.size() / farmers.size()) {
-                    possibleFarmers.add(j);
+                if (farmers.get(j).getCountry().equals(trees.get(i).getCountry())) {
+                    possibleFarmers.add(farmers.get(j).getId());
                 }
             }
             if (possibleFarmers.size() > 0) {
                 int randomIndex = (int) (Math.random() * possibleFarmers.size());
                 int farmerId = possibleFarmers.get(randomIndex);
                 gene[i] = farmerId;
-                farmerTreeCount.put(farmers.get(farmerId).getId(), farmerTreeCount.get(farmers.get(farmerId).getId()) + 1);
+                countryTreeCount.put(trees.get(i).getCountry(), countryTreeCount.get(trees.get(i).getCountry()) + 1);
+                System.out.println("All'iterazione:" + i+ " , farmerID:"+farmerId);
             } else {
 // Handle the case where there are no possible farmers for the current tree
             }
         }
+
         chromosome.setGene(gene);
+
+        System.out.println(Arrays.toString(gene));
         chromosome.evaluateFitness(trees, farmers);
         return chromosome;
     }
 
-        private Chromosome evolve() {
+
+
+
+
+    private Chromosome evolve() {
         Chromosome parent1 = tournamentSelection();
         Chromosome parent2 = tournamentSelection();
         Chromosome offspring = parent1.crossover(parent2);
@@ -101,26 +118,26 @@ public class GeneticAlgorithm {
         return winner;
     }
 
+    private void mutate() {
+        for (Chromosome chromosome : population) {
+            double randomNum = Math.random();
+            if (randomNum < MUTATION_RATE) {
+                chromosome.mutate();
+                chromosome.evaluateFitness(trees, farmers);
+            }
+        }
+    }
 
     public double getBestFitness() {
         return bestFitness;
     }
 
 
-    private void mutate() {
-        for (int i = 0; i < POPULATION_SIZE; i++) {
-            if (Math.random() < MUTATION_RATE) {
-                population.set(i, population.get(i).permute(trees, farmers));
-            }
-        }
-    }
-
     private void updateBestSolution() {
-        population.sort(Comparator.comparingDouble(Chromosome::getFitness));
-        Chromosome currentBest = population.get(0);
-        if (bestFitness < currentBest.getFitness()) {
-            bestFitness = currentBest.getFitness();
+        Chromosome currentBest = population.stream().max(Comparator.comparingDouble(Chromosome::getFitness)).get();
+        if (currentBest.getFitness() > bestSolution.getFitness()) {
             bestSolution = currentBest;
+            bestFitness = currentBest.getFitness();
         }
     }
 

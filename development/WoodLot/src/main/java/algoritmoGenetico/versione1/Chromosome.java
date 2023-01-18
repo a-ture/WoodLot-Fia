@@ -63,46 +63,27 @@ public class Chromosome {
 
         for (int i = 0; i < this.gene.length; i++) {
             int farmerId = this.gene[i];
+            if (farmerId != -1) {
+                Farmer farmer = farmers.get(farmerId);
 
-            Farmer farmer = farmers.get(farmerId);
-            //TODO implementare una funizone di ricerca perchè adesso va solo perchè sono in ordine
-            int treeId = trees.get(i).getId() - 1;
-            Tree tree = trees.get(treeId);
-            if (farmer.getCountry().equals(tree.getCountry()) && !tree.getCountry().equals("Guatemala")
-                    && farmerTreeCount.containsKey(farmerId) &&
-                    farmerTreeCount.get(farmerId) < (trees.size() / farmers.size())) {
-                fitnessScore++;
-                farmerTreeCount.put(farmerId, farmerTreeCount.get(farmerId) + 1);
-                treesAssigned++;
-                if (!farmersAssignedMap.containsKey(farmerId) || !farmersAssignedMap.get(farmerId)) {
-                    farmersAssigned++;
-                    farmersAssignedMap.put(farmerId, true);
-                }
-            } else {
-                // now we check if there is any farmer that can be assigned to this tree
-                boolean validAssignment = false;
-                for (Farmer f : farmers) {
-                    if (f.getCountry().equals(tree.getCountry())
-                            && farmerTreeCount.containsKey(f.getId()) &&
-                            farmerTreeCount.get(f.getId()) < (trees.size() / farmers.size())) {
-                        validAssignment = true;
-                        break;
+                int treeId = trees.get(i).getId() - 1;
+                Tree tree = trees.get(treeId);
+                if (farmer.getCountry().equals(tree.getCountry())
+                        && farmerTreeCount.containsKey(farmerId) &&
+                        farmerTreeCount.get(farmerId) < (trees.size() / farmers.size())) {
+                    fitnessScore++;
+                    farmerTreeCount.put(farmerId, farmerTreeCount.get(farmerId) + 1);
+                    treesAssigned++;
+                    if (!farmersAssignedMap.containsKey(farmerId) || !farmersAssignedMap.get(farmerId)) {
+                        farmersAssigned++;
+                        farmersAssignedMap.put(farmerId, true);
                     }
-                }
-                if (!validAssignment) {
-                    //there is not a valid assignment for this tree
+                } else {
                     fitnessScore--;
                 }
             }
         }
-        if (treesAssigned < trees.size()) {
-            fitnessScore -= (trees.size() - treesAssigned);
-        }
-        if (farmersAssigned < farmers.size()) {
-            fitnessScore -= (farmers.size() - farmersAssigned);
-        }
-
-//premiare le soluzioni che assegnano più alberi ai contadini che ne hanno meno
+        //premiare le soluzioni che assegnano più alberi ai contadini che ne hanno meno
         int minTreesPlanted = Integer.MAX_VALUE;
         for (Integer count : farmerTreeCount.values()) {
             if (count < minTreesPlanted) {
