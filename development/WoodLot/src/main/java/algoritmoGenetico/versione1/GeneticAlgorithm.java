@@ -60,17 +60,6 @@ public class GeneticAlgorithm {
         Chromosome chromosome = new Chromosome(trees.size(), trees, farmers);
         int[] gene = new int[trees.size()];
 
-        Map<String, Integer> countryTreeCount = new HashMap<>();
-
-        for (int i = 0; i < trees.size(); i++) {
-            gene[i] = -1;
-        }
-        for (int i = 0; i < trees.size(); i++) {
-            if (!countryTreeCount.containsKey(trees.get(i).getCountry())) {
-                countryTreeCount.put(trees.get(i).getCountry(), 0);
-            }
-        }
-
         for (int i = 0; i < trees.size(); i++) {
             List<Integer> possibleFarmers = new ArrayList<>();
             for (int j = 0; j < farmers.size(); j++) {
@@ -82,14 +71,14 @@ public class GeneticAlgorithm {
                 int randomIndex = (int) (Math.random() * possibleFarmers.size());
                 int farmerId = possibleFarmers.get(randomIndex);
                 gene[i] = farmerId;
-                countryTreeCount.put(trees.get(i).getCountry(), countryTreeCount.get(trees.get(i).getCountry()) + 1);
+
             } else {
-// Handle the case where there are no possible farmers for the current tree
+                // Handle the case where there are no possible farmers for the current tree
             }
         }
 
         chromosome.setGene(gene);
-        chromosome.evaluateFitness(trees, farmers);
+        chromosome.evaluateFitness();
         return chromosome;
     }
 
@@ -116,7 +105,7 @@ public class GeneticAlgorithm {
             double randomNum = Math.random();
             if (randomNum < MUTATION_RATE) {
                 chromosome.mutate();
-                chromosome.evaluateFitness(trees, farmers);
+                chromosome.evaluateFitness();
             }
         }
     }

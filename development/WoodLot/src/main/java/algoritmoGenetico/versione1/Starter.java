@@ -62,7 +62,7 @@ public class Starter {
         farmers.add(new Farmer(6, "Argentina", 0));
         farmers.add(new Farmer(7, "Italia", 0));
         farmers.add(new Farmer(8, "Italia", 0));
-        farmers.add(new Farmer(9, "Napoliii", 0));
+
 
         for (int i = 0; i < farmers.size(); i++)
             System.out.println(farmers.get(i));
