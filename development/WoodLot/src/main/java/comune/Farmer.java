@@ -1,58 +1,45 @@
 package comune;
 
 import java.util.Objects;
+import java.util.Random;
 
 public class Farmer {
     private int id;
     private String country;
-
     private int treesPlanted;
+    private int penalties;
+    private Random random = new Random();
 
     public Farmer(int id, String country, int treesPlanted) {
         this.id = id;
         this.country = country;
         this.treesPlanted = treesPlanted;
-    }
-
-    public int getTreesPlanted() {
-        return treesPlanted;
-    }
-
-    public void setTreesPlanted(int treesPlanted) {
-        this.treesPlanted = treesPlanted;
+        this.penalties = random.nextInt(10);
+        ;
     }
 
     public int getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public String getCountry() {
         return country;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public int getTreesPlanted() {
+        return treesPlanted;
+    }
+
+    public int getPenalties() {
+        return penalties;
     }
 
     public void plantTree() {
-        this.treesPlanted++;
+        treesPlanted++;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Farmer)) return false;
-        Farmer farmer = (Farmer) o;
-        return id == farmer.id && treesPlanted == farmer.treesPlanted && country.equals(farmer.country);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, country, treesPlanted);
+    public void incrementPenalties() {
+        penalties++;
     }
 
     @Override
@@ -61,6 +48,7 @@ public class Farmer {
                 "id=" + id +
                 ", country='" + country + '\'' +
                 ", treesPlanted=" + treesPlanted +
+                ", penalties=" + penalties +
                 '}';
     }
 }
