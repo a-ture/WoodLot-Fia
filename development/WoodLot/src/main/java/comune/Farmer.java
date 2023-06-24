@@ -38,10 +38,6 @@ public class Farmer {
         treesPlanted++;
     }
 
-    public void incrementPenalties() {
-        penalties++;
-    }
-
     @Override
     public String toString() {
         return "Farmer{" +
