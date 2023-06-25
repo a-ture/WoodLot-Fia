@@ -3,7 +3,7 @@ package comune;
 import java.util.Objects;
 import java.util.Random;
 
-public class Farmer {
+public class Farmer implements Cloneable {
     private int id;
     private String country;
     private int treesPlanted;
@@ -15,7 +15,6 @@ public class Farmer {
         this.country = country;
         this.treesPlanted = treesPlanted;
         this.penalties = random.nextInt(10);
-        ;
     }
 
     public int getId() {
@@ -46,5 +45,17 @@ public class Farmer {
                 ", treesPlanted=" + treesPlanted +
                 ", penalties=" + penalties +
                 '}';
+    }
+
+    @Override
+    public Farmer clone() {
+        try {
+            Farmer cloned = (Farmer) super.clone();
+            cloned.random = new Random(); // Crea una nuova istanza di Random per il clone
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            // Questa eccezione non dovrebbe verificarsi in quanto Farmer implementa Cloneable
+            throw new RuntimeException("Errore durante la clonazione dell'oggetto Farmer", e);
+        }
     }
 }

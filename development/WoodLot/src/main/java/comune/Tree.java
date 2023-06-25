@@ -1,6 +1,6 @@
 package comune;
 
-public class Tree {
+public class Tree implements Cloneable {
     private int id;
     private String country;
 
@@ -22,4 +22,13 @@ public class Tree {
         return "Tree [id=" + id + ", country=" + country + "]";
     }
 
+    @Override
+    public Tree clone() {
+        try {
+            return (Tree) super.clone();
+        } catch (CloneNotSupportedException e) {
+            // Questa eccezione non dovrebbe verificarsi in quanto Tree implementa Cloneable
+            throw new RuntimeException("Errore durante la clonazione dell'oggetto Tree", e);
+        }
+    }
 }
