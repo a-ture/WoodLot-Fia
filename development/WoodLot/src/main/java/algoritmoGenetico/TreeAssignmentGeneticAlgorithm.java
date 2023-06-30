@@ -6,9 +6,9 @@ import comune.Tree;
 import java.util.*;
 
 public class TreeAssignmentGeneticAlgorithm {
-    private static final int POPULATION_SIZE = 20;
-    private static final double MUTATION_RATE = 0.5;
-    private static final int MAX_GENERATIONS = 100;
+    private static final int POPULATION_SIZE = 10;
+    private static final double MUTATION_RATE = 0.9;
+    private static final int MAX_GENERATIONS = 150;
 
     // Inner class representing a chromosome
     private static class Chromosome {
@@ -61,10 +61,11 @@ public class TreeAssignmentGeneticAlgorithm {
             // Calcolo del fitness per ogni cromosoma
             evaluateFitness(population, trees);
 
-            // Stampa la popolazione corrente
+
             System.out.println("\n\nPopolazione :" + generation);
             for (Chromosome chromosome : population) {
                 System.out.println(chromosome.toString());
+                System.out.println("Fitness è: " + chromosome.fitness);
             }
             System.out.println();
 
@@ -136,7 +137,7 @@ public class TreeAssignmentGeneticAlgorithm {
             if (selectedTree != null) {
                 List<Farmer> availableFarmers = new ArrayList<>();
                 for (Farmer farmer : farmers) {
-                    if (farmer.getCountry().equals(selectedTree.getCountry())) {
+                    if (farmer.getCountry().equals(selectedTree.getCountry()) && assignment.get(farmer).size() < 4) {
                         availableFarmers.add(farmer);
                     }
                 }
@@ -156,6 +157,7 @@ public class TreeAssignmentGeneticAlgorithm {
 
         return new Chromosome(assignment);
     }
+
 
     private static void evaluateFitness(List<Chromosome> population, List<Tree> trees) {
         for (Chromosome chromosome : population) {
@@ -178,44 +180,24 @@ public class TreeAssignmentGeneticAlgorithm {
             for (Farmer farmer : assignment.keySet()) {
                 String country = farmer.getCountry();
                 int farmerPenalties = farmer.getPenalties();
+                int assignedTrees = assignment.get(farmer).size();
 
                 if (farmerPenalties == minPenaltiesByCountry.get(country)) {
-                    farmersWithMinPenaltyByCountry.put(country, farmersWithMinPenaltyByCountry.getOrDefault(country, 0) + 1);
-                }
-            }
-
-            // Calcola il numero totale di alberi per ogni paese
-            Map<String, Integer> totalTreesByCountry = new HashMap<>();
-            for (Tree tree : trees) {
-                String country = tree.getCountry();
-                totalTreesByCountry.put(country, totalTreesByCountry.getOrDefault(country, 0) + 1);
-            }
-
-            // Calcola il numero approssimativo di alberi che ogni contadino dovrebbe ricevere
-            Map<String, Double> expectedTreesPerFarmer = new HashMap<>();
-            for (String country : farmersWithMinPenaltyByCountry.keySet()) {
-                int numFarmersWithMinPenalty = farmersWithMinPenaltyByCountry.get(country);
-                int totalTreesInCountry = totalTreesByCountry.get(country);
-
-                double expectedTrees = (double) totalTreesInCountry / numFarmersWithMinPenalty;
-                expectedTreesPerFarmer.put(country, expectedTrees);
-            }
-
-            // Calcola la fitness considerando la distribuzione equa per ogni paese
-            for (Farmer farmer : assignment.keySet()) {
-                String country = farmer.getCountry();
-                int assignedTrees = assignment.get(farmer).size();
-                double expectedTrees = expectedTreesPerFarmer.get(country);
-                double tolerance = 1; // Tolleranza specificata
-
-                if (Math.abs(assignedTrees - expectedTrees) < tolerance) {
-                    fitness++;
+                    if (Math.abs(assignedTrees ) < 4) {
+                        fitness ++;
+                    }else if (assignedTrees == 4){
+                        fitness += 5;
+                        farmersWithMinPenaltyByCountry.put(country, farmersWithMinPenaltyByCountry.getOrDefault(country, farmerPenalties));
+                    }else if (assignedTrees > 4)
+                        fitness --;
                 }
             }
 
             chromosome.setFitness(fitness);
         }
+
     }
+
 
     private static List<Chromosome> selectParents(List<Chromosome> population) {
         List<Chromosome> parents = new ArrayList<>();
@@ -256,7 +238,7 @@ public class TreeAssignmentGeneticAlgorithm {
             Chromosome child1 = crossover(parent1, parent2);
             Chromosome child2 = crossover(parent2, parent1);
 
-           mutate(child1);
+            mutate(child1);
             mutate(child2);
 
             offspring.add(child1);
@@ -281,25 +263,23 @@ public class TreeAssignmentGeneticAlgorithm {
 
             // Combine trees from both parents while maintaining validity
             for (Tree tree : trees1) {
-                if (!childTrees.contains(tree) && !assignedTrees.contains(tree)) {
+                if (!childTrees.contains(tree) && !assignedTrees.contains(tree) && childTrees.size() < 4) {
                     childTrees.add(tree);
                     assignedTrees.add(tree);
                 }
             }
 
             for (Tree tree : trees2) {
-                if (!childTrees.contains(tree) && !assignedTrees.contains(tree)) {
+                if (!childTrees.contains(tree) && !assignedTrees.contains(tree) && childTrees.size() < 4) {
                     childTrees.add(tree);
                     assignedTrees.add(tree);
                 }
             }
-
             childAssignment.put(farmer, childTrees);
         }
 
         return new Chromosome(childAssignment);
     }
-
 
 
     private static void mutate(Chromosome chromosome) {
@@ -315,27 +295,32 @@ public class TreeAssignmentGeneticAlgorithm {
                     Farmer randomFarmer = getRandomFarmerExcept(farmer, assignment.keySet());
                     List<Tree> randomFarmerTrees = assignment.get(randomFarmer);
 
-                    // Check if tree1 already exists in the random farmer's trees
-                    if (!randomFarmerTrees.contains(tree1) && !randomFarmerTrees.isEmpty()) {
-                        int randomIndex = (int) (Math.random() * randomFarmerTrees.size());
-                        Tree tree2 = randomFarmerTrees.get(randomIndex);
-
-                        // Remove tree2 from the random farmer's trees
-                        randomFarmerTrees.remove(tree2);
-
-                        // Add tree1 to the random farmer's trees
+                    if (!randomFarmerTrees.contains(tree1) && !randomFarmerTrees.isEmpty() && trees.size() < 4 && randomFarmerTrees.size() < 4) {
+                        trees.remove(tree1);
                         randomFarmerTrees.add(tree1);
 
-                        // Replace tree1 with tree2 in the current farmer's trees
-                        trees.set(i, tree2);
+                        if (randomFarmerTrees.size() >= 2) { // Check if there are at least 2 trees in randomFarmerTrees
+                            int randomIndex = (int) (Math.random() * randomFarmerTrees.size());
+                            Tree tree2 = randomFarmerTrees.get(randomIndex);
 
+                            randomFarmerTrees.remove(tree2);
+                            randomFarmerTrees.add(tree1);
+
+                            if (i < trees.size()) {
+                                trees.set(i, tree2);
+                            } else {
+                                trees.add(tree2);
+                            }
+                        } else {
+                            // If there's only one tree in randomFarmerTrees, move tree1 back to the original farmer
+                            randomFarmerTrees.remove(tree1);
+                            trees.add(tree1);
+                        }
                     }
                 }
             }
         }
     }
-
-
 
 
     private static Farmer getRandomFarmerExcept(Farmer excludeFarmer, Set<Farmer> farmers) {
@@ -354,7 +339,6 @@ public class TreeAssignmentGeneticAlgorithm {
 
         return otherFarmers.get((int) (Math.random() * otherFarmers.size()));
     }
-
 
 
     private static Map<Farmer, List<Tree>> getBestSolution(List<Chromosome> population) {
@@ -388,6 +372,20 @@ public class TreeAssignmentGeneticAlgorithm {
         trees.add(new Tree(5, "Italia"));
         trees.add(new Tree(6, "Spagna"));
         trees.add(new Tree(7, "Francia"));
+        trees.add(new Tree(8, "Italia"));
+        trees.add(new Tree(9, "Italia"));
+        trees.add(new Tree(10, "Spagna"));
+        trees.add(new Tree(11, "Francia"));
+        trees.add(new Tree(12, "Italia"));
+        trees.add(new Tree(13, "Spagna"));
+        trees.add(new Tree(14, "Francia"));
+        trees.add(new Tree(15, "Italia"));
+        trees.add(new Tree(16, "Italia"));
+        trees.add(new Tree(17, "Spagna"));
+        trees.add(new Tree(18, "Francia"));
+        trees.add(new Tree(19, "Italia"));
+        trees.add(new Tree(20, "Spagna"));
+        trees.add(new Tree(21, "Francia"));
 
         Map<Farmer, List<Tree>> optimalAssignment = findOptimalAssignment(farmers, trees);
 
