@@ -1,6 +1,5 @@
 package comune;
 
-import java.util.Objects;
 import java.util.Random;
 
 public class Farmer implements Cloneable {
