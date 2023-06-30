@@ -370,15 +370,15 @@ public class TreeAssignmentGeneticAlgorithm {
 
         // Esempio di utilizzo
         List<Farmer> farmers = new ArrayList<>();
-        farmers.add(new Farmer(1, "Italia", 3));
-        farmers.add(new Farmer(2, "Spagna", 5));
-        farmers.add(new Farmer(3, "Francia", 4));
-        farmers.add(new Farmer(4, "Italia", 3));
-        farmers.add(new Farmer(5, "Spagna", 5));
-        farmers.add(new Farmer(6, "Francia", 4));
-        farmers.add(new Farmer(7, "Italia", 3));
-        farmers.add(new Farmer(8, "Spagna", 5));
-        farmers.add(new Farmer(9, "Francia", 4));
+        farmers.add(new Farmer(1, "Italia"));
+        farmers.add(new Farmer(2, "Spagna"));
+        farmers.add(new Farmer(3, "Francia"));
+        farmers.add(new Farmer(4, "Italia"));
+        farmers.add(new Farmer(5, "Spagna"));
+        farmers.add(new Farmer(6, "Francia"));
+        farmers.add(new Farmer(7, "Italia"));
+        farmers.add(new Farmer(8, "Spagna"));
+        farmers.add(new Farmer(9, "Francia"));
 
         List<Tree> trees = new ArrayList<>();
         trees.add(new Tree(1, "Italia"));

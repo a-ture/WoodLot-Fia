@@ -102,9 +102,9 @@ public class TreeAssignmentHillClimbing {
 
     public static void main(String[] args) {
         // Creazione dei contadini
-        Farmer farmer1 = new Farmer(1, "Italy", 2);
-        Farmer farmer2 = new Farmer(2, "Italy", 1);
-        Farmer farmer3 = new Farmer(3, "France", 2);
+        Farmer farmer1 = new Farmer(1, "Italy");
+        Farmer farmer2 = new Farmer(2, "Italy");
+        Farmer farmer3 = new Farmer(3, "France");
 
         // Creazione degli alberi
         Tree tree1 = new Tree(1, "Italy"); // Albero con id, paese e penalità

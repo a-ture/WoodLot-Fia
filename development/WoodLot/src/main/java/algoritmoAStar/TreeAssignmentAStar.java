@@ -5,43 +5,59 @@ import comune.Tree;
 
 import java.util.*;
 
-// Classe rappresentante il nodo dello spazio di ricerca
-class Node implements Comparable<Node> {
-    private Map<Farmer, List<Tree>> state;  // Stato del nodo
-    private int gCost;  // Costo del percorso dal nodo iniziale al nodo corrente
-    private int hCost;  // Euristiche del nodo corrente
-    private Node parent;  // Nodo genitore nel percorso
+class State {
+    Map<Farmer, List<Tree>> assignment; // Assegnazione degli alberi ai contadini
 
-    public Node(Map<Farmer, List<Tree>> state, int gCost, int hCost, Node parent) {
+    public State(Map<Farmer, List<Tree>> assignment) {
+        this.assignment = assignment;
+    }
+
+    public boolean isGoalState(List<Tree> trees) {
+        // Verifica se tutti gli alberi sono stati assegnati
+        for (Tree tree : trees) {
+            boolean isAssigned = false;
+            for (List<Tree> assignedTrees : assignment.values()) {
+                if (assignedTrees.contains(tree)) {
+                    isAssigned = true;
+                    break;
+                }
+            }
+            if (!isAssigned) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+class Node implements Comparable<Node> {
+    State state;
+    Node parent;
+    int gCost; // Costo g
+    int hCost; // Costo h
+
+    public Node(State state, int gCost, int hCost, Node parent) {
         this.state = state;
         this.gCost = gCost;
         this.hCost = hCost;
         this.parent = parent;
     }
 
-    public Map<Farmer, List<Tree>> getState() {
+    public State getState() {
         return state;
-    }
-
-    public int getGCost() {
-        return gCost;
-    }
-
-    public int getHCost() {
-        return hCost;
-    }
-
-    public int getFCost() {
-        return gCost + hCost;
     }
 
     public Node getParent() {
         return parent;
     }
 
+    public int getCost() {
+        return gCost + hCost;
+    }
+
     @Override
     public int compareTo(Node other) {
-        return Integer.compare(this.getFCost(), other.getFCost());
+        return Integer.compare(getCost(), other.getCost());
     }
 }
 
@@ -55,11 +71,11 @@ public class TreeAssignmentAStar {
         }
 
         // Creazione del nodo iniziale
-        Node initialNode = new Node(initialState, 0, calculateHeuristic(initialState), null);
+        Node initialNode = new Node(new State(initialState), 0, calculateHeuristic(initialState, trees), null);
 
         // Inizializzazione delle strutture dati
         PriorityQueue<Node> openList = new PriorityQueue<>();
-        Set<Map<Farmer, List<Tree>>> closedSet = new HashSet<>();
+        Set<State> closedSet = new HashSet<>();
 
         // Aggiunta del nodo iniziale alla coda prioritaria
         openList.add(initialNode);
@@ -67,31 +83,61 @@ public class TreeAssignmentAStar {
         while (!openList.isEmpty()) {
             // Estrazione del nodo con il costo più basso dalla coda prioritaria
             Node currentNode = openList.poll();
-            Map<Farmer, List<Tree>> currentState = currentNode.getState();
+            State currentState = currentNode.getState();
 
             // Verifica se lo stato corrente è una soluzione
-            if (isGoalState(currentState, trees)) {
-                return currentState;
+            if (currentState.isGoalState(trees)) {
+                return currentState.assignment;
             }
 
             // Aggiunta dello stato corrente all'insieme dei nodi visitati
             closedSet.add(currentState);
 
             // Generazione dei successori
-            for (Farmer farmer : farmers) {
-                for (Tree tree : trees) {
-                    if (isValidAssignment(currentState, farmer, tree)) {
-                        Map<Farmer, List<Tree>> newState = new HashMap<>(currentState);
-                        newState.get(farmer).add(tree);
-                        int gCost = currentNode.getGCost() + 1;
-                        int hCost = calculateHeuristic(newState);
-                        Node newNode = new Node(newState, gCost, hCost, currentNode);
+            // Generazione dei successori
+            for (Tree tree : trees) {
+                if (!isTreeAssigned(currentState.assignment, tree)) {
+                    Map<Farmer, List<Tree>> newState = new HashMap<>(currentState.assignment);
 
-                        if (!closedSet.contains(newState)) {
-                            openList.add(newNode);
+                    List<Farmer> eligibleFarmers = new ArrayList<>();
+
+                    // Trova i contadini eleggibili con penalità simili
+                    int minPenalties = Integer.MAX_VALUE;
+                    for (Farmer farmer : farmers) {
+                        if (farmer.getCountry().equals(tree.getCountry()) && newState.get(farmer).size() < 4) {
+                            if (farmer.getPenalties() < minPenalties ) {
+                                eligibleFarmers.clear();
+                                minPenalties = farmer.getPenalties();
+                            }
+
+                            if (farmer.getPenalties() == minPenalties) {
+                                eligibleFarmers.add(farmer);
+                            }
                         }
                     }
 
+                    // Assegna l'albero al contadino con meno alberi assegnati
+                    Farmer bestFarmer = null;
+                    int minAssignedTrees = Integer.MAX_VALUE;
+
+                    for (Farmer farmer : eligibleFarmers) {
+                        int assignedTrees = newState.get(farmer).size();
+                        if (assignedTrees < minAssignedTrees) {
+                            bestFarmer = farmer;
+                            minAssignedTrees = assignedTrees;
+                        }
+                    }
+
+                    if (bestFarmer != null && isValidAssignment(currentState.assignment, bestFarmer, tree)) {
+                        newState.get(bestFarmer).add(tree);
+                        int gCost = currentNode.gCost + 1;
+                        int hCost = calculateHeuristic(newState, trees);
+                        Node newNode = new Node(new State(newState), gCost, hCost, currentNode);
+
+                        if (!closedSet.contains(newNode.getState())) {
+                            openList.add(newNode);
+                        }
+                    }
                 }
             }
         }
@@ -100,46 +146,55 @@ public class TreeAssignmentAStar {
         return null;
     }
 
-    private static int calculateHeuristic(Map<Farmer, List<Tree>> state) {
+    private static boolean isTreeAssigned(Map<Farmer, List<Tree>> assignment, Tree tree) {
+        for (List<Tree> assignedTrees : assignment.values()) {
+            if (assignedTrees.contains(tree)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static int calculateHeuristic(Map<Farmer, List<Tree>> assignment, List<Tree> trees) {
         int totalAssignedTrees = 0;
         int maxPenalty = 0;
         int penalty = 0;
 
-        for (List<Tree> assignedTrees : state.values()) {
+        for (List<Tree> assignedTrees : assignment.values()) {
             totalAssignedTrees += assignedTrees.size();
         }
 
-        for (Farmer farmer : state.keySet()) {
+        for (Farmer farmer : assignment.keySet()) {
             int farmerPenalty = farmer.getPenalties();
-            int assignedTreesCount = state.get(farmer).size();
+            int assignedTreesCount = assignment.get(farmer).size();
 
-            // Trova la penalità massima tra tutti i contadini
+            // Find the maximum penalty among all farmers
             if (farmerPenalty > maxPenalty) {
                 maxPenalty = farmerPenalty;
             }
 
-            // Sottrai il punteggio di penalità del contadino dal punteggio totale
+            // Subtract the farmer's penalty score from the total penalty
             penalty -= farmerPenalty;
 
-            // Sottrai anche il numero di alberi già assegnati al contadino
+            // Subtract the number of already assigned trees to the farmer
             penalty -= assignedTreesCount;
         }
 
-        // Aggiungi un termine basato sulla penalità massima per influenzare l'euristica
+        // Add a term based on the maximum penalty to influence the heuristic
         penalty -= (maxPenalty * 10);
 
         return totalAssignedTrees + penalty;
     }
 
 
-    private static boolean isValidAssignment(Map<Farmer, List<Tree>> state, Farmer farmer, Tree tree) {
+    private static boolean isValidAssignment(Map<Farmer, List<Tree>> assignment, Farmer farmer, Tree tree) {
         // Verifica se il contadino si trova nel luogo adatto alla crescita dell'albero
         if (!farmer.getCountry().equals(tree.getCountry())) {
             return false;
         }
 
         // Verifica se l'albero è già stato assegnato a un contadino diverso
-        for (List<Tree> assignedTrees : state.values()) {
+        for (List<Tree> assignedTrees : assignment.values()) {
             if (assignedTrees.contains(tree)) {
                 return false;
             }
@@ -148,37 +203,20 @@ public class TreeAssignmentAStar {
         return true;
     }
 
-    private static boolean isGoalState(Map<Farmer, List<Tree>> state, List<Tree> trees) {
-        // Verifica se tutti gli alberi sono stati assegnati
-        for (Tree tree : trees) {
-            boolean isAssigned = false;
-            for (List<Tree> assignedTrees : state.values()) {
-                if (assignedTrees.contains(tree)) {
-                    isAssigned = true;
-                    break;
-                }
-            }
-            if (!isAssigned) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 
     // Esempio di utilizzo
     public static void main(String[] args) {
         // Creazione dei contadini
-        Farmer farmer1 = new Farmer(1, "Italy", 2);
-        Farmer farmer2 = new Farmer(2, "Italy", 1);
-        Farmer farmer3 = new Farmer(3, "France", 2);
-        Farmer farmer4 = new Farmer(4, "Italy", 23);
-        Farmer farmer5 = new Farmer(5, "Italy", 12);
-        Farmer farmer6 = new Farmer(6, "France", 12);
-        Farmer farmer7 = new Farmer(7, "Italy", 223);
-        Farmer farmer8 = new Farmer(8, "Italy", 11);
-        Farmer farmer9 = new Farmer(9, "France", 22);
-        Farmer farmer10 = new Farmer(10, "Italy", 21);
+        Farmer farmer1 = new Farmer(1, "Italy");
+        Farmer farmer2 = new Farmer(2, "Italy");
+        Farmer farmer3 = new Farmer(3, "France");
+        Farmer farmer4 = new Farmer(4, "Italy");
+        Farmer farmer5 = new Farmer(5, "Italy");
+        Farmer farmer6 = new Farmer(6, "France");
+        Farmer farmer7 = new Farmer(7, "Italy");
+        Farmer farmer8 = new Farmer(8, "Italy");
+        Farmer farmer9 = new Farmer(9, "France");
+        Farmer farmer10 = new Farmer(10, "Italy");
 
         // Creazione degli alberi
         Tree tree1 = new Tree(1, "Italy");

@@ -5,14 +5,13 @@ import java.util.Random;
 public class Farmer implements Cloneable {
     private int id;
     private String country;
-    private int treesPlanted;
+
     private int penalties;
     private Random random = new Random();
 
-    public Farmer(int id, String country, int treesPlanted) {
+    public Farmer(int id, String country) {
         this.id = id;
         this.country = country;
-        this.treesPlanted = treesPlanted;
         this.penalties = random.nextInt(10);
     }
 
@@ -24,24 +23,17 @@ public class Farmer implements Cloneable {
         return country;
     }
 
-    public int getTreesPlanted() {
-        return treesPlanted;
-    }
 
     public int getPenalties() {
         return penalties;
     }
 
-    public void plantTree() {
-        treesPlanted++;
-    }
 
     @Override
     public String toString() {
         return "Farmer{" +
                 "id=" + id +
                 ", country='" + country + '\'' +
-                ", treesPlanted=" + treesPlanted +
                 ", penalties=" + penalties +
                 '}';
     }
