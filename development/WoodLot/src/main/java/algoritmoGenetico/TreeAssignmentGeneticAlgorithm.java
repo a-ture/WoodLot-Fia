@@ -6,7 +6,7 @@ import comune.Tree;
 import java.util.*;
 
 public class TreeAssignmentGeneticAlgorithm {
-    private static final int POPULATION_SIZE = 10;
+    private static final int POPULATION_SIZE = 20;
     private static final double MUTATION_RATE = 0.9;
     private static final int MAX_GENERATIONS = 150;
 
