@@ -85,14 +85,31 @@ public class TreeAssignment {
         trees.add(new Tree(13, "Argentina"));
         trees.add(new Tree(14, "Argentina"));
 
-        System.out.println("Situazione iniziale:");
+        printResult(farmers, trees);
+
+        System.out.println("--Testiamo il caso in cui ci sono più alberi che contadini--");
+        assignTrees(farmers, trees);
+
+        System.out.println("\n\n--Testiamo il caso in cui non ci sono contadini compatibili--");
+        farmers.clear();
+        Farmer f1 = new Farmer(15, "Portogallo");
+        farmers.add(f1);
+        printResult(farmers, trees);
+        assignTrees(farmers, trees);
+        System.out.println("\nNon è presente una soluzione poichè il contadino inserito:" + f1 + " " +
+                "\nnon è compatibile con nessun albero, poichè ha un paese diverso");
+
+    }
+
+    private static void printResult(List<Farmer> farmers, List<Tree> trees) {
+        System.out.println("I contadini sono:");
         for (Farmer farmer : farmers) {
             System.out.println(farmer);
         }
-
+        System.out.println("\nGli alberi usati sono: ");
+        for (Tree tree : trees) {
+            System.out.println(tree);
+        }
         System.out.println();
-
-        assignTrees(farmers, trees);
-
     }
 }

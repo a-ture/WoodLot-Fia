@@ -83,6 +83,7 @@ public class TreeAssignmentGeneticAlgorithm {
 
             // Verifica se esistono assegnazioni valide nella soluzione migliore
             bestSolution = getBestSolution(population);
+
         }
 
         return bestSolution;  // Esempio: restituisce null se non ci sono assegnazioni valide
@@ -389,6 +390,16 @@ public class TreeAssignmentGeneticAlgorithm {
 
         Map<Farmer, List<Tree>> optimalAssignment = findOptimalAssignment(farmers, trees);
 
+        System.out.println("--Testiamo il caso in cui ci sono  più contadini che alberi--");
+        System.out.println("I contadini usati sono: ");
+        for (Farmer farmer : farmers) {
+            System.out.println(farmer);
+        }
+        System.out.println("Gli alberi usati sono: ");
+        for (Tree tree : trees) {
+            System.out.println(tree);
+        }
+
         if (optimalAssignment != null) {
             for (Farmer farmer : optimalAssignment.keySet()) {
                 List<Tree> assignedTrees = optimalAssignment.get(farmer);
@@ -398,7 +409,7 @@ public class TreeAssignmentGeneticAlgorithm {
                 }
             }
         } else {
-            System.out.println("No valid assignment found.");
+            System.out.println("Nessuna soluzione trovata");
         }
     }
 }

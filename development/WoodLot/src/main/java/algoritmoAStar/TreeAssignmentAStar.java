@@ -94,7 +94,7 @@ public class TreeAssignmentAStar {
             closedSet.add(currentState);
 
             // Generazione dei successori
-            // Generazione dei successori
+
             for (Tree tree : trees) {
                 if (!isTreeAssigned(currentState.assignment, tree)) {
                     Map<Farmer, List<Tree>> newState = new HashMap<>(currentState.assignment);
@@ -105,7 +105,7 @@ public class TreeAssignmentAStar {
                     int minPenalties = Integer.MAX_VALUE;
                     for (Farmer farmer : farmers) {
                         if (farmer.getCountry().equals(tree.getCountry()) && newState.get(farmer).size() < 4) {
-                            if (farmer.getPenalties() < minPenalties ) {
+                            if (farmer.getPenalties() < minPenalties) {
                                 eligibleFarmers.clear();
                                 minPenalties = farmer.getPenalties();
                             }
@@ -206,6 +206,7 @@ public class TreeAssignmentAStar {
 
     // Esempio di utilizzo
     public static void main(String[] args) {
+
         // Creazione dei contadini
         Farmer farmer1 = new Farmer(1, "Italy");
         Farmer farmer2 = new Farmer(2, "Italy");
@@ -242,8 +243,64 @@ public class TreeAssignmentAStar {
 
         // Trova l'assegnazione ottimale
         Map<Farmer, List<Tree>> optimalAssignment = findOptimalAssignment(farmers, trees);
+        System.out.println("--Testiamo il caso in cui ci sono  più contadini che alberi--");
+        System.out.println("I contadini usati sono: ");
+        for (Farmer farmer : farmers) {
+            System.out.println(farmer);
+        }
+        System.out.println("Gli alberi usati sono: ");
+        for (Tree tree : trees) {
+            System.out.println(tree);
+        }
+        // Stampa l'assegnazione ottimale
+        printResult(optimalAssignment);
+        System.out.println("\n");
+
+        System.out.println("\n\n--Testiamo il caso in cui ci sono  più alberi che contadini--");
+        // Trova l'assegnazione ottimale
+
+        farmers = Arrays.asList(farmer1, farmer2, farmer3);
+        optimalAssignment = findOptimalAssignment(farmers, trees);
+        // Stampa l'assegnazione ottimale
+        System.out.println("I contadini usati sono: ");
+        for (Farmer farmer : farmers) {
+            System.out.println(farmer);
+        }
+        System.out.println("Gli alberi usati sono: ");
+        for (Tree tree : trees) {
+            System.out.println(tree);
+        }
+        printResult(optimalAssignment);
+        System.out.println("\n");
+        System.out.println("Non viene prodotto un assegnamento poichè ci sono troppi alberi rispetto ai contadini, " +
+                "ciascun contadino può avere al massimo 4 alberi");
+
+        System.out.println("\n\n--Testiamo il caso in cui non ci sono contadini compatibili--");
+        Farmer farmer11 = new Farmer(11, "Portugal");
+
+        // Creazione delle liste di contadini e alberi
+        List<Farmer> farmers1 = Arrays.asList(farmer11);
+
+        System.out.println("I contadini usati sono: ");
+        for (Farmer farmer : farmers1) {
+            System.out.println(farmer);
+        }
+        System.out.println("Gli alberi usati sono: ");
+        for (Tree tree : trees) {
+            System.out.println(tree);
+        }
+        System.out.println("\n");
+        // Trova l'assegnazione ottimale
+        optimalAssignment = findOptimalAssignment(farmers1, trees);
 
         // Stampa l'assegnazione ottimale
+        printResult(optimalAssignment);
+        System.out.println("Non è presente una soluzione poichè il contadino inserito:" + farmer11 + " " +
+                "\nnon è compatibile con nessun albero, poichè ha un paese diverso");
+
+    }
+
+    private static void printResult(Map<Farmer, List<Tree>> optimalAssignment) {
         if (optimalAssignment != null) {
             for (Farmer farmer : optimalAssignment.keySet()) {
                 List<Tree> assignedTrees = optimalAssignment.get(farmer);
