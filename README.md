@@ -2,7 +2,7 @@
 
 
 <p align="center">
-<img alt="FitDiary Logo" width="460" height="300" src="imageProject/logoWoodLot.png">
+<img alt="WoodLot" width="460" height="300" src="imageProject/logoWoodLot.jpg">
 </p>
 
 > Progetto realizzato per il corso di Fondamenti di Intelligenza Artificiale - Università degli Studi di Salerno 2022/23
