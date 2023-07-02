@@ -13,6 +13,6 @@ Lo scopo del progetto è quello di realizzare un agente intelligente a supporto 
 * [Alessia Ture](https://github.com/a-ture)
 
 ## Contenuti 
-* Alogirtmo Best Fit Greedy
+* Alogirtmo Best Fist Greedy
 * Algoritmo A*
 * Algoritmo Genetico
